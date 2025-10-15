@@ -1,26 +1,133 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --primary-dark: #3E2723;
+  --secondary-brown: #D4A373;
+  --accent-brown: #8D6E63;
+  --cream: #FFE0B2;
+  --dark-accent: #3F3F3E0;
+  --background: #FFE0B2;
+  --foreground: #3E2723;
 }
 
 @theme inline {
+  --color-primary-dark: var(--primary-dark);
+  --color-secondary-brown: var(--secondary-brown);
+  --color-accent-brown: var(--accent-brown);
+  --color-cream: var(--cream);
+  --color-dark-accent: var(--dark-accent);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+/* Custom Price Range Slider Styles - Min Slider (Hollow) */
+.range-slider-min::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: transparent;
+  border: 3px solid #8D6E63;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  transition: all 0.2s ease;
+}
+
+.range-slider-min::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  border-color: #3E2723;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.range-slider-min::-webkit-slider-thumb:active {
+  transform: scale(1.1);
+}
+
+.range-slider-min::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: transparent;
+  border: 3px solid #8D6E63;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  transition: all 0.2s ease;
+}
+
+.range-slider-min::-moz-range-thumb:hover {
+  transform: scale(1.15);
+  border-color: #3E2723;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.range-slider-min::-moz-range-thumb:active {
+  transform: scale(1.1);
+}
+
+/* Custom Price Range Slider Styles - Max Slider (Solid) */
+.range-slider-max::-webkit-slider-thumb {
+  appearance: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #3E2723;
+  border: 3px solid #FFE0B2;
+  cursor: pointer;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.4);
+  transition: all 0.2s ease;
+  margin-top: -11px; /* Center the thumb on the track */
+}
+
+.range-slider-max::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+  background: #2E1F1A;
+}
+
+.range-slider-max::-webkit-slider-thumb:active {
+  transform: scale(1.1);
+}
+
+.range-slider-max::-moz-range-thumb {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #3E2723;
+  border: 3px solid #FFE0B2;
+  cursor: pointer;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.4);
+  transition: all 0.2s ease;
+}
+
+.range-slider-max::-moz-range-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+  background: #2E1F1A;
+}
+
+.range-slider-max::-moz-range-thumb:active {
+  transform: scale(1.1);
+}
+
+/* Hide default track styling */
+.range-slider-min::-webkit-slider-track,
+.range-slider-max::-webkit-slider-track {
+  background: transparent;
+  border: none;
+  height: 0;
+}
+
+.range-slider-min::-moz-range-track,
+.range-slider-max::-moz-range-track {
+  background: transparent;
+  border: none;
+  height: 0;
 }
