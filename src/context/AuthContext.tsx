@@ -1,6 +1,39 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+
+// Session persistence utilities
+const SESSION_KEY = 'smartEthnicDemoUser';
+
+const saveUserSession = (user: User) => {
+  const userData = JSON.stringify(user);
+  localStorage.setItem(SESSION_KEY, userData);
+  sessionStorage.setItem(SESSION_KEY, userData);
+};
+
+const getUserSession = (): User | null => {
+  try {
+    // Check localStorage first (persistent)
+    let userData = localStorage.getItem(SESSION_KEY);
+
+    // Check sessionStorage if not found
+    if (!userData) {
+      userData = sessionStorage.getItem(SESSION_KEY);
+    }
+
+    return userData ? JSON.parse(userData) : null;
+  } catch (error) {
+    console.error('Error reading user session:', error);
+    return null;
+  }
+};
+
+const clearUserSession = () => {
+  localStorage.removeItem(SESSION_KEY);
+  sessionStorage.removeItem(SESSION_KEY);
+};
 
 interface User {
   id: string;
@@ -17,7 +50,6 @@ interface AuthContextType {
   user: User | null;
   isLoggedIn: boolean;
   loading: boolean;
-  sendOTP: (email: string) => Promise<{ exists: boolean }>;
   verifyOTP: (email: string, otp: string) => Promise<{ success: boolean; needsSignup?: boolean }>;
   completeSignup: (email: string, userData: Partial<User>) => Promise<void>;
   logout: () => Promise<void>;
@@ -54,64 +86,123 @@ const checkPhoneExists = async (phone: string): Promise<boolean> => {
   return users.some(user => user.phone === phone);
 };
 
+// Firestore helper functions
+const checkUserExistsInFirestore = async (email: string): Promise<boolean> => {
+  try {
+    const userRef = doc(db, 'users', email);
+    const userSnap = await getDoc(userRef);
+    return userSnap.exists();
+  } catch (error) {
+    console.error('Error checking user in Firestore:', error);
+    return false;
+  }
+};
+
+const getUserFromFirestore = async (email: string): Promise<User | null> => {
+  try {
+    const userRef = doc(db, 'users', email);
+    const userSnap = await getDoc(userRef);
+
+    if (userSnap.exists()) {
+      const userData = userSnap.data();
+      return {
+        id: userData.id || email,
+        firstName: userData.firstName || '',
+        lastName: userData.lastName || '',
+        email: userData.email || email,
+        phone: userData.phone || '',
+        address: userData.address || '',
+        pinCode: userData.pinCode || '',
+        createdAt: userData.createdAt ? new Date(userData.createdAt) : new Date(),
+      };
+    }
+    return null;
+  } catch (error) {
+    console.error('Error getting user from Firestore:', error);
+    return null;
+  }
+};
+
+const saveUserToFirestore = async (user: User): Promise<void> => {
+  try {
+    const userRef = doc(db, 'users', user.email);
+
+    // Handle createdAt - ensure it's a valid ISO string
+    let createdAtIso: string;
+    if (user.createdAt) {
+      if (typeof user.createdAt === 'string') {
+        createdAtIso = user.createdAt;
+      } else if (user.createdAt instanceof Date) {
+        createdAtIso = user.createdAt.toISOString();
+      } else {
+        createdAtIso = new Date().toISOString();
+      }
+    } else {
+      createdAtIso = new Date().toISOString();
+    }
+
+    await setDoc(userRef, {
+      id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      phone: user.phone,
+      address: user.address,
+      pinCode: user.pinCode,
+      createdAt: createdAtIso,
+    });
+  } catch (error) {
+    console.error('Error saving user to Firestore:', error);
+    throw error;
+  }
+};
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check for saved user in localStorage
-    const savedDemoUser = localStorage.getItem('smartEthnicDemoUser');
-    if (savedDemoUser) {
+    // Restore user session on app load
+    const checkSavedUser = async () => {
       try {
-        const demoUser = JSON.parse(savedDemoUser);
-        setUser(demoUser);
+        const savedUser = getUserSession();
+
+        if (savedUser) {
+          // Optional: Verify user still exists in Firestore (uncomment if needed)
+          // const userExists = await checkUserExistsInFirestore(savedUser.email);
+          // if (!userExists) {
+          //   clearUserSession();
+          //   return;
+          // }
+
+          setUser(savedUser);
+        }
       } catch (error) {
-        console.error('Error parsing demo user:', error);
-        localStorage.removeItem('smartEthnicDemoUser');
+        console.error('Error restoring user session:', error);
+        clearUserSession();
       }
-    }
-    setLoading(false);
+    };
+
+    checkSavedUser().finally(() => setLoading(false));
   }, []);
 
-  // OTP-based authentication functions
-  const sendOTP = async (email: string): Promise<{ exists: boolean }> => {
+  // Authentication functions
+
+  const verifyOTP = async (email: string, _otp: string): Promise<{ success: boolean; needsSignup?: boolean }> => {
     try {
-      // Simulate API delay for OTP sending
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Simulate API delay for authentication
+      await new Promise(resolve => setTimeout(resolve, 500));
 
-      // Check if user exists in localStorage
-      const exists = await checkUserExists(email);
-      return { exists };
-    } catch (error) {
-      console.error('Send OTP error:', error);
-      throw error;
-    }
-  };
-
-  const verifyOTP = async (email: string, otp: string): Promise<{ success: boolean; needsSignup?: boolean }> => {
-    try {
-      // Simulate API delay for OTP verification
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // Validate OTP format
-      if (otp.length !== 6 || !/^\d{6}$/.test(otp)) {
-        throw new Error('Invalid OTP format');
-      }
-
-      // For demo purposes, accept '123456' as valid OTP
-      if (otp !== '123456') {
-        throw new Error('Invalid OTP. Use 123456 for demo.');
-      }
-
-      const userExists = await checkUserExists(email);
+      // OTP validation is now handled in the component
+      // Check user existence in Firestore
+      const userExists = await checkUserExistsInFirestore(email);
 
       if (userExists) {
-        // Existing user - log them in
-        const users = getStoredUsers();
-        const existingUser = users.find((u: User) => u.email === email);
-        if (existingUser) {
-          setUser(existingUser);
-          localStorage.setItem('smartEthnicDemoUser', JSON.stringify(existingUser));
+        // Existing user - get user data from Firestore and log them in
+        const userData = await getUserFromFirestore(email);
+        if (userData) {
+          setUser(userData);
+          saveUserSession(userData);
           return { success: true, needsSignup: false };
         }
       } else {
@@ -135,7 +226,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       // Create new user
       const newUser: User = {
-        id: 'demo_' + Date.now(),
+        id: 'user_' + Date.now(),
         firstName: userData.firstName || '',
         lastName: userData.lastName || '',
         email: email,
@@ -145,13 +236,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         createdAt: new Date(),
       };
 
-      // Save to localStorage
-      const users = getStoredUsers();
-      const updatedUsers = [...users, newUser];
-      saveUsersToStorage(updatedUsers);
+      // Save to Firestore
+      await saveUserToFirestore(newUser);
 
+      // Save session and update state
       setUser(newUser);
-      localStorage.setItem('smartEthnicDemoUser', JSON.stringify(newUser));
+      saveUserSession(newUser);
     } catch (error) {
       console.error('Complete signup error:', error);
       throw error;
@@ -160,13 +250,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     setUser(null);
-    localStorage.removeItem('smartEthnicDemoUser');
+    clearUserSession();
+    // Note: Cart clearing is handled by CartContext when isLoggedIn becomes false
   };
 
   const updateUserProfile = async (userData: Partial<User>) => {
     if (!user) return;
 
     try {
+      // Update user in Firebase Firestore
+      await saveUserToFirestore({ ...user, ...userData });
+
       // Update user in localStorage
       const users = getStoredUsers();
       const updatedUsers = users.map(u =>
@@ -177,8 +271,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Update local state
       setUser(prev => prev ? { ...prev, ...userData } : null);
 
-      // Update localStorage
-      localStorage.setItem('smartEthnicDemoUser', JSON.stringify({ ...user, ...userData }));
+      // Update session persistence
+      const updatedUser = { ...user, ...userData };
+      saveUserSession(updatedUser);
     } catch (error) {
       console.error('Profile update error:', error);
       throw error;
@@ -189,7 +284,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     user,
     isLoggedIn: !!user,
     loading,
-    sendOTP,
     verifyOTP,
     completeSignup,
     logout,

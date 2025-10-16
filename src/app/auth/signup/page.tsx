@@ -23,7 +23,7 @@ export default function Signup() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const { signup } = useAuth();
+  // Authentication is handled through AuthModal component
   const router = useRouter();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -36,45 +36,8 @@ export default function Signup() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
-
-    if (!formData.agreeToTerms) {
-      setError('Please agree to the terms and conditions');
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      // Simple demo signup - in real app, this would call an API
-      if (formData.firstName && formData.lastName && formData.email && formData.password) {
-        // Simulate API call delay
-        await new Promise(resolve => setTimeout(resolve, 1500));
-
-        // Create user object
-        const user = {
-          id: Date.now().toString(),
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          email: formData.email,
-          phone: formData.phone || '9825965551'
-        };
-
-        signup(user);
-        router.push('/');
-      } else {
-        setError('Please fill in all required fields');
-      }
-    } catch (err) {
-      setError('Signup failed. Please try again.');
-    } finally {
-      setLoading(false);
-    }
+    setError('Authentication is now handled through the signup modal. Please use the signup button in the header or on product pages.');
+    setLoading(false);
   };
 
   return (

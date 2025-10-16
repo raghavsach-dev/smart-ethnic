@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -8,58 +8,171 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
+import AuthModal from '@/components/auth/AuthModal';
+import AddressConfirmationModal from '@/components/AddressConfirmationModal';
+import OrderConfirmationModal from '@/components/OrderConfirmationModal';
 import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft } from 'lucide-react';
+import CustomPopup, { useCustomPopup } from '@/components/CustomPopup';
+import { doc, setDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
 export default function Cart() {
   const { cartItems, removeFromCart, updateQuantity, clearCart, getTotalPrice } = useCart();
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, loading: authLoading, user } = useAuth();
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
+  const [isOrderConfirmationOpen, setIsOrderConfirmationOpen] = useState(false);
+  const [completedOrderId, setCompletedOrderId] = useState<string>('');
+  const { popupState, showSuccess, showError, showInfo, hidePopup } = useCustomPopup();
 
-  const handleQuantityChange = (id: string, newQuantity: number) => {
-    updateQuantity(id, newQuantity);
+  // Generate order ID: {userName(First 4 chars)}{random 5 digits}
+  const generateOrderId = (userName: string): string => {
+    const namePrefix = userName.substring(0, 4).toUpperCase();
+    const randomDigits = Math.floor(10000 + Math.random() * 90000); // 5-digit random number
+    return `${namePrefix}${randomDigits}`;
   };
 
-  const handleRemoveItem = (id: string) => {
-    removeFromCart(id);
+  // Create order document in Firebase
+  const createOrder = async (addressData: { address: string; phone: string; pinCode: string }) => {
+    if (!user?.email || cartItems.length === 0) {
+      console.log('Cannot create order: user email or cart items missing', { userEmail: user?.email, cartItemsCount: cartItems.length });
+      return null;
+    }
+
+    const orderId = generateOrderId(user.firstName);
+    console.log('Generated order ID:', orderId);
+
+    const orderData = {
+      orderId,
+      user: {
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        phone: addressData.phone,
+        address: addressData.address,
+        pinCode: addressData.pinCode
+      },
+      items: cartItems.map(item => ({
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        image: item.image,
+        category: item.category,
+        size: item.size,
+        quantity: item.quantity,
+        total: item.price * item.quantity
+      })),
+      pricing: {
+        subtotal,
+        shipping,
+        total
+      },
+      status: 'Placed',
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+
+    console.log('Order data to save:', orderData);
+
+    try {
+      const orderRef = doc(db, 'users', user.email, 'orders', orderId);
+      await setDoc(orderRef, orderData);
+      console.log('Order saved successfully with ID:', orderId);
+      return orderId;
+    } catch (error) {
+      console.error('Error creating order:', error);
+      throw error;
+    }
   };
 
-  const handleCheckout = async () => {
+  // Show login modal if not logged in (after auth loading is complete)
+  useEffect(() => {
+    if (!authLoading && !isLoggedIn) {
+      setIsAuthModalOpen(true);
+    }
+  }, [isLoggedIn, authLoading]);
+
+  // Debug: Log when modal state changes
+  useEffect(() => {
+    console.log('Modal state changed:', { isOrderConfirmationOpen, completedOrderId });
+  }, [isOrderConfirmationOpen, completedOrderId]);
+
+  const handleQuantityChange = (id: string, size: string, newQuantity: number) => {
+    updateQuantity(id, size, newQuantity);
+  };
+
+  const handleRemoveItem = (id: string, size: string) => {
+    removeFromCart(id, size);
+  };
+
+  const handleCheckout = () => {
     if (!isLoggedIn) {
-      // Redirect to login if not logged in
-      router.push('/auth/login?redirect=/cart');
+      // Show login modal if not logged in
+      setIsAuthModalOpen(true);
       return;
     }
 
-    setLoading(true);
+    // Show address confirmation modal
+    setIsAddressModalOpen(true);
+  };
+
+  const handleAddressConfirm = async (addressData: { address: string; phone: string; pinCode: string }) => {
+    setIsAddressModalOpen(false);
+    setCheckoutLoading(true);
 
     try {
-      // Simulate order placement
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      console.log('Creating order with address data:', addressData);
+      // Create order in Firebase
+      const orderId = await createOrder(addressData);
+      console.log('Order created with ID:', orderId);
 
+      if (orderId) {
       // Clear cart after successful order
-      clearCart();
+        await clearCart();
+        console.log('Cart cleared, showing order confirmation modal');
 
-      // In a real app, this would redirect to order confirmation
-      alert('Order placed successfully! You will receive a confirmation email.');
-      router.push('/');
+        // Show order confirmation modal
+        console.log('About to set completedOrderId to:', orderId);
+        setCompletedOrderId(orderId);
+        console.log('About to set isOrderConfirmationOpen to true');
+        setIsOrderConfirmationOpen(true);
+        console.log('Order confirmation modal should be open now, state should be:', { isOrderConfirmationOpen: true, completedOrderId: orderId });
+      } else {
+        throw new Error('Failed to create order');
+      }
     } catch (error) {
-      alert('Failed to place order. Please try again.');
+      console.error('Order placement error:', error);
+      showError('Failed to place order. Please try again.');
     } finally {
-      setLoading(false);
+      setCheckoutLoading(false);
     }
+  };
+
+  const handleOrderConfirmationClose = () => {
+    setIsOrderConfirmationOpen(false);
+    router.push('/');
+  };
+
+  const handleViewOrders = () => {
+    setIsOrderConfirmationOpen(false);
+    router.push('/orders');
   };
 
   const subtotal = getTotalPrice();
   const shipping = subtotal > 999 ? 0 : 99;
   const total = subtotal + shipping;
 
-  if (cartItems.length === 0) {
     return (
-      <div className="min-h-screen bg-cream">
+    <div className="min-h-screen bg-white flex flex-col">
         <Header />
 
-        <main className="container mx-auto px-4 py-12 flex items-center justify-center min-h-[calc(100vh-200px)]">
+      <main className="container mx-auto px-4 py-8 flex-grow">
+        {cartItems.length === 0 ? (
+          // Empty cart state
+          <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
             <div className="mb-8">
               <ShoppingBag className="h-24 w-24 text-accent-brown mx-auto mb-4" />
@@ -86,19 +199,10 @@ export default function Cart() {
               </Link>
             </div>
           </div>
-        </main>
-
-        <Footer />
       </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen bg-cream">
-      <Header />
-
-      <main className="container mx-auto px-4 py-8">
-        {/* Header */}
+        ) : (
+          // Cart with items
+          <>
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
             <Link
@@ -106,7 +210,6 @@ export default function Cart() {
               className="flex items-center gap-2 text-primary-dark hover:text-secondary-brown transition-colors"
             >
               <ArrowLeft className="h-5 w-5" />
-              Continue Shopping
             </Link>
             <h1 className="text-3xl font-bold text-primary-dark">Shopping Cart</h1>
           </div>
@@ -120,7 +223,7 @@ export default function Cart() {
           <div className="lg:col-span-2">
             <div className="bg-white rounded-lg shadow-md">
               {cartItems.map((item) => (
-                <div key={item.id} className="flex items-center p-6 border-b border-gray-200 last:border-b-0">
+                <div key={`${item.id}-${item.size || 'default'}`} className="flex items-center p-6 border-b border-gray-200 last:border-b-0">
                   {/* Product Image */}
                   <div className="relative w-20 h-20 rounded-lg overflow-hidden flex-shrink-0">
                     <Image
@@ -139,13 +242,14 @@ export default function Cart() {
                       </h3>
                     </Link>
                     <p className="text-accent-brown text-sm capitalize">{item.category}</p>
+                    <p className="text-primary-dark text-sm">Size: {item.size || 'Default'}</p>
                     <p className="text-primary-dark font-semibold mt-1">₹{item.price.toLocaleString()}</p>
                   </div>
 
                   {/* Quantity Controls */}
                   <div className="flex items-center gap-3">
                     <button
-                      onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
+                      onClick={() => handleQuantityChange(item.id, item.size || 'Default', item.quantity - 1)}
                       className="p-1 rounded-md border border-gray-300 hover:border-primary-dark hover:text-primary-dark transition-colors"
                       disabled={item.quantity <= 1}
                     >
@@ -155,7 +259,7 @@ export default function Cart() {
                     <span className="w-8 text-center font-medium">{item.quantity}</span>
 
                     <button
-                      onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
+                      onClick={() => handleQuantityChange(item.id, item.size || 'Default', item.quantity + 1)}
                       className="p-1 rounded-md border border-gray-300 hover:border-primary-dark hover:text-primary-dark transition-colors"
                     >
                       <Plus className="h-4 w-4" />
@@ -168,7 +272,7 @@ export default function Cart() {
                       ₹{(item.price * item.quantity).toLocaleString()}
                     </p>
                     <button
-                      onClick={() => handleRemoveItem(item.id)}
+                      onClick={() => handleRemoveItem(item.id, item.size || 'Default')}
                       className="text-red-500 hover:text-red-700 transition-colors mt-1"
                       title="Remove item"
                     >
@@ -182,7 +286,7 @@ export default function Cart() {
             {/* Clear Cart */}
             <div className="mt-4 text-right">
               <button
-                onClick={clearCart}
+                onClick={() => clearCart()}
                 className="text-red-500 hover:text-red-700 transition-colors font-medium"
               >
                 Clear Cart
@@ -225,10 +329,10 @@ export default function Cart() {
               {/* Checkout Button */}
               <button
                 onClick={handleCheckout}
-                disabled={loading}
+                disabled={checkoutLoading}
                 className="w-full mt-8 bg-primary-dark text-cream py-4 px-6 rounded-lg font-semibold text-lg hover:bg-accent-brown transition-colors duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
-                {loading ? (
+                {checkoutLoading ? (
                   <>
                     <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -264,9 +368,41 @@ export default function Cart() {
             </div>
           </div>
         </div>
+        </>
+        )}
       </main>
 
       <Footer />
+
+      {/* Auth Modal */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+      />
+
+      {/* Address Confirmation Modal */}
+      <AddressConfirmationModal
+        isOpen={isAddressModalOpen}
+        onClose={() => setIsAddressModalOpen(false)}
+        onConfirm={handleAddressConfirm}
+        loading={checkoutLoading}
+      />
+
+      {/* Order Confirmation Modal */}
+      <OrderConfirmationModal
+        isOpen={isOrderConfirmationOpen}
+        orderId={completedOrderId}
+        onClose={handleOrderConfirmationClose}
+        onViewOrders={handleViewOrders}
+      />
+
+      {/* Custom Popup */}
+      <CustomPopup
+        isOpen={popupState.isOpen}
+        type={popupState.type}
+        message={popupState.message}
+        onClose={hidePopup}
+      />
     </div>
   );
 }

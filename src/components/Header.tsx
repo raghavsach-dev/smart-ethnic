@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { ShoppingCart, Menu, X, User, LogOut, Package } from 'lucide-react';
+import { ShoppingCart, Menu, X, User, LogOut } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useCart } from '@/context/CartContext';
@@ -31,56 +31,55 @@ export default function Header() {
     <header className="bg-secondary-brown text-primary-dark shadow-lg sticky top-0 z-50">
       <div className="container mx-auto px-4 py-1">
         <div className="flex items-center justify-between">
-          {/* Logo */}
-          <Link href="/" className="flex items-center">
-            <Image
-              src="/logo.png"
-              alt="Smart Ethnic Logo"
-              width={280}
-              height={140}
-              className="h-20 w-auto object-contain hover:opacity-80 transition-opacity"
-            />
-          </Link>
+          {/* Logo and Navigation */}
+          <div className="flex items-center space-x-8">
+            {/* Logo */}
+            <Link href="/" className="flex items-center">
+              <Image
+                src="/logo.png"
+                alt="Smart Ethnic Logo"
+                width={280}
+                height={140}
+                className="h-20 w-auto object-contain hover:opacity-80 transition-opacity"
+              />
+            </Link>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex space-x-8">
-            <Link href="/" className="text-primary-dark hover:text-accent-brown transition-colors font-medium text-lg">
-              Home
-            </Link>
-            <Link href="/products" className="text-primary-dark hover:text-accent-brown transition-colors font-medium text-lg">
-              Products
-            </Link>
-            <Link href="/categories" className="text-primary-dark hover:text-accent-brown transition-colors font-medium text-lg">
-              Categories
-            </Link>
-            <Link href="/about" className="text-primary-dark hover:text-accent-brown transition-colors font-medium text-lg">
-              About
-            </Link>
-            <Link href="/contact" className="text-primary-dark hover:text-accent-brown transition-colors font-medium text-lg">
-              Contact
-            </Link>
-          </nav>
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex space-x-8">
+              <Link href="/" className="text-primary-dark hover:text-accent-brown transition-colors font-medium text-lg">
+                Home
+              </Link>
+              <Link href="/products" className="text-primary-dark hover:text-accent-brown transition-colors font-medium text-lg">
+                Products
+              </Link>
+              <Link href="/categories" className="text-primary-dark hover:text-accent-brown transition-colors font-medium text-lg">
+                Categories
+              </Link>
+              <Link href="/about" className="text-primary-dark hover:text-accent-brown transition-colors font-medium text-lg">
+                About
+              </Link>
+              <Link href="/contact" className="text-primary-dark hover:text-accent-brown transition-colors font-medium text-lg">
+                Contact
+              </Link>
+            </nav>
+          </div>
 
           {/* Account Icon, Cart */}
           <div className="flex items-center space-x-4">
             {isLoggedIn ? (
               <>
-                {/* User Info */}
-                <div className="flex items-center space-x-2">
-                  <User className="h-5 w-5 text-secondary-brown" />
+                {/* User Profile - Clickable to go to Account */}
+                <Link
+                  href="/account"
+                  className="flex items-center space-x-2 text-primary-dark hover:text-accent-brown transition-colors cursor-pointer group"
+                  title="Go to Account"
+                >
+                  <User className="h-5 w-5 text-primary-dark group-hover:text-accent-brown transition-colors" />
                   <span className="text-sm font-medium hidden sm:block">
                     Hi, {user?.firstName}
                   </span>
-                </div>
+                </Link>
 
-                {/* Admin Panel Link */}
-                <a
-                  href="/admin"
-                  className="text-primary-dark hover:text-accent-brown transition-colors p-1 cursor-pointer"
-                  title="Admin Panel"
-                >
-                  <Package className="h-5 w-5" />
-                </a>
 
                 {/* Logout Button */}
                 <button
@@ -172,12 +171,12 @@ export default function Header() {
                       <span className="font-medium">Hi, {user?.firstName}</span>
                     </div>
                     <Link
-                      href="/profile"
+                      href="/account"
                       className="flex items-center space-x-2 text-primary-dark hover:text-accent-brown transition-colors font-medium"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       <User className="h-5 w-5" />
-                      <span>Profile</span>
+                      <span>Account</span>
                     </Link>
                     <Link
                       href="/orders"

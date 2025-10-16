@@ -18,7 +18,7 @@ export default function Login() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const { login } = useAuth();
+  // Authentication is handled through AuthModal component
   const router = useRouter();
   const searchParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
   const redirect = searchParams.get('redirect') || '/';
@@ -33,35 +33,8 @@ export default function Login() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    setLoading(true);
-
-    try {
-      // Simple demo authentication - in real app, this would call an API
-      // For now, accept any email/password combination
-      if (formData.email && formData.password) {
-        // Simulate API call delay
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-        // Create a demo user object
-        const user = {
-          id: '1',
-          firstName: formData.email.split('@')[0], // Extract name from email
-          lastName: 'User',
-          email: formData.email,
-          phone: '9825965551'
-        };
-
-        login(user);
-        router.push(redirect);
-      } else {
-        setError('Please fill in all fields');
-      }
-    } catch (err) {
-      setError('Login failed. Please try again.');
-    } finally {
-      setLoading(false);
-    }
+    setError('Authentication is now handled through the login modal. Please use the login button in the header or on product pages.');
+    setLoading(false);
   };
 
   return (

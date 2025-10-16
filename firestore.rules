@@ -1,0 +1,26 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users collection - allow read/write for all users (demo purposes)
+    match /users/{userId} {
+      allow read, write: if true;
+
+      // Cart subcollection
+      match /cart/{cartId} {
+        allow read, write: if true;
+      }
+    }
+
+    // Collections (products) - allow read for all users
+    match /collections/{collectionId}/products/{productId} {
+      allow read: if true;
+      allow write: if false; // Only allow writes through admin
+    }
+
+    // Collections metadata - allow read for all users
+    match /collections/{collectionId} {
+      allow read: if true;
+      allow write: if false; // Only allow writes through admin
+    }
+  }
+}
