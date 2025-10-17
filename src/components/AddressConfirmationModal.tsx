@@ -23,7 +23,6 @@ export default function AddressConfirmationModal({
     phone: '',
     pinCode: ''
   });
-  const [saving, setSaving] = useState(false);
 
   // Load user data when modal opens
   useEffect(() => {
@@ -47,7 +46,6 @@ export default function AddressConfirmationModal({
   const handleSaveAddress = async () => {
     if (!user) return;
 
-    setSaving(true);
     try {
       await updateProfile({
         address: formData.address,
@@ -56,8 +54,6 @@ export default function AddressConfirmationModal({
       });
     } catch (error) {
       console.error('Error updating address:', error);
-    } finally {
-      setSaving(false);
     }
   };
 

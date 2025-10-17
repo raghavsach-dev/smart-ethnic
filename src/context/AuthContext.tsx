@@ -74,12 +74,6 @@ const saveUsersToStorage = (users: User[]) => {
   localStorage.setItem('smartEthnicDemoUsers', JSON.stringify(users));
 };
 
-// Helper function to check if user exists by email
-const checkUserExists = async (email: string): Promise<boolean> => {
-  const users = getStoredUsers();
-  return users.some(user => user.email === email);
-};
-
 // Helper function to check if phone number is already in use
 const checkPhoneExists = async (phone: string): Promise<boolean> => {
   const users = getStoredUsers();

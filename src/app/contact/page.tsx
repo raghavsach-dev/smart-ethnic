@@ -4,12 +4,12 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Mail, Phone, MapPin, Clock } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { collection, getDocs, doc, setDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 
-export default function Contact() {
+function Contact() {
   const { user, isLoggedIn } = useAuth();
   const searchParams = useSearchParams();
   const [formData, setFormData] = useState({
@@ -469,5 +469,13 @@ export default function Contact() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function ContactWithSuspense() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <Contact />
+    </Suspense>
   );
 }

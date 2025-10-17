@@ -10,7 +10,7 @@ export default function Footer() {
           <div className="col-span-1 sm:col-span-2 lg:col-span-2">
             <h3 className="text-2xl font-bold text-primary-dark mb-4">Smart Ethnic</h3>
             <p className="text-primary-dark/80 mb-6 max-w-md text-sm sm:text-base">
-              Premium quality men's ethnic wear combining traditional designs with modern comfort.
+              Premium quality men&apos;s ethnic wear combining traditional designs with modern comfort.
               Discover authentic ethnic fashion that celebrates heritage and style.
             </p>
             <div className="flex space-x-4">

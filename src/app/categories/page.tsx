@@ -52,7 +52,7 @@ export default function Categories() {
           </h1>
           <p className="text-xl text-accent-brown max-w-3xl mx-auto">
             Discover our comprehensive collection of premium ethnic wear, carefully curated
-            to help you find exactly what you're looking for.
+            to help you find exactly what you&apos;re looking for.
           </p>
         </div>
 
@@ -108,7 +108,7 @@ export default function Categories() {
                 <div className="text-6xl mb-4">📂</div>
                 <h3 className="text-2xl font-semibold text-primary-dark mb-2">No Collections Found</h3>
                 <p className="text-primary-dark mb-6 max-w-md mx-auto">
-                  We're currently updating our collections. Please check back later.
+                  We&apos;re currently updating our collections. Please check back later.
                 </p>
               </div>
             )}

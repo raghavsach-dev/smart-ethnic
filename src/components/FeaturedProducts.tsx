@@ -122,12 +122,12 @@ export default function FeaturedProducts() {
         )}
 
         <div className="text-center">
-          <a
+          <Link
             href="/products"
             className="inline-block bg-secondary-brown text-primary-dark px-8 py-4 rounded-lg font-semibold text-lg hover:bg-accent-brown transition-colors duration-300 shadow-lg"
           >
             View All Products
-          </a>
+          </Link>
         </div>
       </div>
     </section>

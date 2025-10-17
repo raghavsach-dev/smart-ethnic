@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -40,8 +40,8 @@ interface Order {
     total: number;
   };
   status: string;
-  createdAt: any;
-  updatedAt: any;
+  createdAt: Date | { toDate: () => Date };
+  updatedAt: Date | { toDate: () => Date };
 }
 
 export default function Orders() {
@@ -51,18 +51,7 @@ export default function Orders() {
   const [loadingOrders, setLoadingOrders] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
-  useEffect(() => {
-    if (!loading && !isLoggedIn) {
-      router.push('/');
-      return;
-    }
-
-    if (isLoggedIn && user?.email) {
-      fetchOrders();
-    }
-  }, [isLoggedIn, user, loading, router]);
-
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     if (!user?.email) return;
 
     try {
@@ -85,7 +74,18 @@ export default function Orders() {
     } finally {
       setLoadingOrders(false);
     }
-  };
+  }, [user?.email]);
+
+  useEffect(() => {
+    if (!loading && !isLoggedIn) {
+      router.push('/');
+      return;
+    }
+
+    if (isLoggedIn && user?.email) {
+      fetchOrders();
+    }
+  }, [isLoggedIn, user, loading, router, fetchOrders]);
 
   const getStatusIcon = (status: string) => {
     switch (status.toLowerCase()) {
@@ -113,9 +113,9 @@ export default function Orders() {
     }
   };
 
-  const formatDate = (timestamp: any) => {
+  const formatDate = (timestamp: Date | { toDate: () => Date }) => {
     if (!timestamp) return 'N/A';
-    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+    const date = 'toDate' in timestamp && typeof timestamp.toDate === 'function' ? timestamp.toDate() : new Date(timestamp as Date);
     return date.toLocaleDateString('en-IN', {
       day: 'numeric',
       month: 'short',
@@ -125,9 +125,9 @@ export default function Orders() {
     });
   };
 
-  const isWithin10Days = (timestamp: any) => {
+  const isWithin10Days = (timestamp: Date | { toDate: () => Date }) => {
     if (!timestamp) return false;
-    const orderDate = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+    const orderDate = 'toDate' in timestamp && typeof timestamp.toDate === 'function' ? timestamp.toDate() : new Date(timestamp as Date);
     const currentDate = new Date();
     const diffTime = Math.abs(currentDate.getTime() - orderDate.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));

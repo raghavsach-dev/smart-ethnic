@@ -52,8 +52,6 @@ export async function storeOTP(email: string, otp: string): Promise<void> {
 // Clean up old OTPs (optional utility function)
 export async function cleanupOldOTPs(hoursOld: number = 24): Promise<void> {
   try {
-    const cutoffTime = new Date(Date.now() - hoursOld * 60 * 60 * 1000);
-
     const records = await base(TABLE_NAME)
       .select({
         filterByFormula: `DATETIME_DIFF(NOW(), {Created Time}, 'hours') > ${hoursOld}`,

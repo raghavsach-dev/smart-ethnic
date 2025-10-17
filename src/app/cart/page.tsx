@@ -25,7 +25,7 @@ export default function Cart() {
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
   const [isOrderConfirmationOpen, setIsOrderConfirmationOpen] = useState(false);
   const [completedOrderId, setCompletedOrderId] = useState<string>('');
-  const { popupState, showSuccess, showError, showInfo, hidePopup } = useCustomPopup();
+  const { popupState, showError, hidePopup } = useCustomPopup();
 
   // Generate order ID: {userName(First 4 chars)}{random 5 digits}
   const generateOrderId = (userName: string): string => {
@@ -185,7 +185,7 @@ export default function Cart() {
               <ShoppingBag className="h-24 w-24 text-accent-brown mx-auto mb-4" />
               <h1 className="text-3xl font-bold text-primary-dark mb-4">Your Cart is Empty</h1>
               <p className="text-accent-brown text-lg max-w-md mx-auto">
-                Looks like you haven't added any items to your cart yet.
+                Looks like you haven&apos;t added any items to your cart yet.
                 Start shopping to fill it up!
               </p>
             </div>

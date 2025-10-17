@@ -78,7 +78,7 @@ export default function OrderConfirmationModal({
             </h2>
 
             <p className="text-gray-600 mb-6">
-              Thank you for your order. We'll send you shipping updates at every step.
+              Thank you for your order. We&apos;ll send you shipping updates at every step.
             </p>
 
             {/* Order ID */}

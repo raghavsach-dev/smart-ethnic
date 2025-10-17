@@ -21,7 +21,7 @@ export default function Hero() {
       {/* Content */}
       <div className="relative z-20 container mx-auto text-center">
         <h1 className="text-4xl md:text-6xl font-bold mb-6 text-secondary-brown">
-          Premium Men's Ethnic Wear
+          Premium Men&apos;s Ethnic Wear
         </h1>
         <p className="text-xl md:text-2xl mb-8 text-cream/90 max-w-3xl mx-auto">
           Discover authentic traditional clothing that blends heritage with modern comfort.

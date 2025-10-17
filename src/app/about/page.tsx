@@ -1,5 +1,6 @@
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import Link from 'next/link';
 import { Award, Users, Truck, Shield } from 'lucide-react';
 
 export default function About() {
@@ -14,7 +15,7 @@ export default function About() {
             About Smart Ethnic
           </h1>
           <p className="text-xl text-primary-dark/80 max-w-3xl mx-auto leading-relaxed">
-            We are passionate about bringing you the finest collection of men's ethnic wear,
+            We are passionate about bringing you the finest collection of men&apos;s ethnic wear,
             combining traditional craftsmanship with modern comfort and style.
           </p>
         </div>
@@ -125,21 +126,21 @@ export default function About() {
           <h2 className="text-3xl font-bold mb-4">Ready to Experience Premium Ethnic Wear?</h2>
           <p className="text-cream/80 mb-6 max-w-2xl mx-auto">
             Browse our collection or get in touch for personalized recommendations.
-            We're here to help you find the perfect traditional outfit.
+            We&apos;re here to help you find the perfect traditional outfit.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a
+            <Link
               href="/products"
               className="bg-secondary-brown text-primary-dark px-8 py-4 rounded-lg font-semibold text-lg hover:bg-cream transition-colors duration-300 shadow-lg"
             >
               Shop Now
-            </a>
-            <a
+            </Link>
+            <Link
               href="/contact"
               className="border-2 border-secondary-brown text-secondary-brown px-8 py-4 rounded-lg font-semibold text-lg hover:bg-secondary-brown hover:text-primary-dark transition-colors duration-300"
             >
               Contact Us
-            </a>
+            </Link>
           </div>
         </div>
       </main>

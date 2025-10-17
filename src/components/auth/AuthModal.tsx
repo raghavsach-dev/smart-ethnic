@@ -294,7 +294,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
               <form onSubmit={handleVerifyOTP} className="space-y-4">
                 <div className="text-center mb-4">
                   <p className="text-sm text-gray-600">
-                    We've sent a 6-digit code to <strong className="text-primary-dark">{formData.email}</strong>
+                    We&apos;ve sent a 6-digit code to <strong className="text-primary-dark">{formData.email}</strong>
                   </p>
                 </div>
 
@@ -309,7 +309,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                     value={formData.otp}
                     onChange={(e) => {
                       const value = e.target.value.replace(/\D/g, '').slice(0, 6);
-                      handleChange({ target: { name: 'otp', value } } as any);
+                      handleChange({ target: { name: 'otp', value } } as React.ChangeEvent<HTMLInputElement>);
                     }}
                     className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-dark focus:border-primary-dark outline-none placeholder-gray-400 text-center text-xl font-mono tracking-widest transition-all"
                     placeholder="000000"
@@ -354,7 +354,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   <Heart className="h-6 w-6 text-white" />
                 </div>
                 <p className="text-gray-600 text-sm font-medium">
-                  Let's set up your account
+                  Let&apos;s set up your account
                 </p>
                 <div className="flex items-center justify-center gap-1 mt-1">
                   <Lock className="h-3 w-3 text-green-600" />

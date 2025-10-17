@@ -1,12 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ProductCard from '@/components/ProductCard';
-import { Search, Filter, SlidersHorizontal, X, Plus, Edit, Trash2, Package, Tag, Percent, Eye, EyeOff } from 'lucide-react';
-import Image from 'next/image';
+import { Search, SlidersHorizontal, X } from 'lucide-react';
 import { getTopProducts, Product } from '@/lib/firebase';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
@@ -22,7 +21,7 @@ interface Category {
   image: string;
 }
 
-export default function Products() {
+function Products() {
   const searchParams = useSearchParams();
 
   // Product data and loading states
@@ -442,5 +441,13 @@ const stepSize = 500;
 
       <Footer />
     </div>
+  );
+}
+
+export default function ProductsWithSuspense() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <Products />
+    </Suspense>
   );
 }

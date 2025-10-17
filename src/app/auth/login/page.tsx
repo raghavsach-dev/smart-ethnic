@@ -2,11 +2,9 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
-import { useAuth } from '@/context/AuthContext';
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
@@ -19,9 +17,6 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
 
   // Authentication is handled through AuthModal component
-  const router = useRouter();
-  const searchParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
-  const redirect = searchParams.get('redirect') || '/';
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -177,7 +172,7 @@ export default function Login() {
             {/* Sign Up Link */}
             <div className="mt-8 text-center">
               <p className="text-accent-brown">
-                Don't have an account?{' '}
+                Don&apos;t have an account?{' '}
                 <Link
                   href="/auth/signup"
                   className="text-secondary-brown hover:text-primary-dark transition-colors font-medium"

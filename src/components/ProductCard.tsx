@@ -20,8 +20,7 @@ export default function ProductCard({
   price,
   originalPrice,
   image,
-  discountPercent,
-  collectionId
+  discountPercent
 }: ProductCardProps) {
 
   return (

@@ -2,11 +2,9 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Eye, EyeOff, Mail, Lock, User, Phone } from 'lucide-react';
-import { useAuth } from '@/context/AuthContext';
 
 export default function Signup() {
   const [showPassword, setShowPassword] = useState(false);
@@ -24,7 +22,6 @@ export default function Signup() {
   const [loading, setLoading] = useState(false);
 
   // Authentication is handled through AuthModal component
-  const router = useRouter();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;

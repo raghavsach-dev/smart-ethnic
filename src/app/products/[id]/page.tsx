@@ -19,7 +19,7 @@ export default function ProductDetail() {
   const [quantity, setQuantity] = useState(1);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
-  const { user, isLoggedIn } = useAuth();
+  const { isLoggedIn } = useAuth();
   const { getTotalItems, addToCart } = useCart();
   const { popupState, showWarning, showSuccess, hidePopup } = useCustomPopup();
 
@@ -118,7 +118,7 @@ export default function ProductDetail() {
       <div className="min-h-screen bg-white">
         <div className="container mx-auto px-4 py-16 text-center">
           <h1 className="text-2xl font-bold text-primary-dark mb-4">Product Not Found</h1>
-          <p className="text-gray-600 mb-8">The product you're looking for doesn't exist.</p>
+          <p className="text-gray-600 mb-8">The product you&apos;re looking for doesn&apos;t exist.</p>
           <Link
             href="/products"
             className="bg-primary-dark text-white px-6 py-3 rounded-lg font-medium hover:bg-accent-brown transition-colors"
@@ -348,10 +348,10 @@ export default function ProductDetail() {
                   <span>Category:</span>
                   <span className="font-medium capitalize">{product.collectionId}</span>
                 </div>
-                {(product as any).material && (
+                {product.material && (
                   <div className="flex justify-between">
                     <span>Material:</span>
-                    <span className="font-medium">{(product as any).material}</span>
+                    <span className="font-medium">{product.material}</span>
                   </div>
                 )}
                 {sizes.length > 0 && (

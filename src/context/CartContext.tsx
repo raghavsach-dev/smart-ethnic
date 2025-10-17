@@ -4,7 +4,6 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import { doc, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuth } from '@/context/AuthContext';
-import { getProductById } from '@/lib/firebase';
 
 interface CartItem {
   id: string;
@@ -62,36 +61,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
       console.error('Error loading cart from Firestore:', error);
     }
     return [];
-  };
-
-  const refreshCartPrices = async (cartItems: CartItem[]): Promise<CartItem[]> => {
-    const updatedItems: CartItem[] = [];
-
-    for (const item of cartItems) {
-      try {
-        const currentProduct = await getProductById(item.id);
-        if (currentProduct) {
-          // Update price and other product details
-          updatedItems.push({
-            ...item,
-            price: parseInt(currentProduct.price),
-            name: currentProduct.name, // Update name in case it changed
-            image: currentProduct.image, // Update image in case it changed
-            category: currentProduct.collectionId || item.category
-          });
-        } else {
-          // Product might be temporarily unavailable, keep the item with current data
-          console.warn(`Product ${item.id} not found, keeping in cart with current data`);
-          updatedItems.push(item);
-        }
-      } catch (error) {
-        console.error(`Error refreshing price for product ${item.id}:`, error);
-        // Keep the item with its current price if refresh fails
-        updatedItems.push(item);
-      }
-    }
-
-    return updatedItems;
   };
 
   // Load cart from Firebase for logged-in users only
