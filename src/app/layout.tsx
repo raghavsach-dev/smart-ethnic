@@ -18,6 +18,9 @@ export const metadata: Metadata = {
   title: "Smart Ethnic - Premium Men's Ethnic Wear",
   description: "Discover premium quality men's ethnic wear at Smart Ethnic. Traditional designs meet modern comfort. Shop authentic ethnic clothing online.",
   keywords: "men's ethnic wear, traditional clothing, Indian wear, kurta, sherwani, ethnic fashion",
+  icons: {
+    icon: "/logo.png",
+  },
 };
 
 export default function RootLayout({
