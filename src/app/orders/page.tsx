@@ -137,7 +137,7 @@ export default function Orders() {
   const handleReturnRequest = (orderId: string) => {
     // Navigate to contact page with pre-selected subject and order
     const params = new URLSearchParams({
-      subject: 'returns',
+      subject: 'Returns & Exchanges',
       order: orderId
     });
     router.push(`/contact?${params.toString()}`);

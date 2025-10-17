@@ -362,13 +362,13 @@ export default function Contact() {
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary-brown focus:border-transparent outline-none transition-colors"
                 >
                   <option value="">Select a subject</option>
-                  <option value="order">Order Inquiry</option>
-                  <option value="product">Product Information</option>
-                  <option value="size">Size & Fit Questions</option>
-                  <option value="shipping">Shipping & Delivery</option>
-                  <option value="returns">Returns & Exchanges</option>
-                  <option value="custom">Custom Orders</option>
-                  <option value="other">Other</option>
+                  <option value="Order Inquiry">Order Inquiry</option>
+                  <option value="Product Information">Product Information</option>
+                  <option value="Size & Fit Questions">Size & Fit Questions</option>
+                  <option value="Shipping & Delivery">Shipping & Delivery</option>
+                  <option value="Returns & Exchanges">Returns & Exchanges</option>
+                  <option value="Custom Orders">Custom Orders</option>
+                  <option value="Other">Other</option>
                 </select>
               </div>
 
