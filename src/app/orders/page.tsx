@@ -125,6 +125,24 @@ export default function Orders() {
     });
   };
 
+  const isWithin10Days = (timestamp: any) => {
+    if (!timestamp) return false;
+    const orderDate = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+    const currentDate = new Date();
+    const diffTime = Math.abs(currentDate.getTime() - orderDate.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays <= 10;
+  };
+
+  const handleReturnRequest = (orderId: string) => {
+    // Navigate to contact page with pre-selected subject and order
+    const params = new URLSearchParams({
+      subject: 'returns',
+      order: orderId
+    });
+    router.push(`/contact?${params.toString()}`);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-white flex flex-col">
@@ -197,10 +215,20 @@ export default function Orders() {
               <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
                   <h2 className="text-2xl font-bold text-gray-900">Order #{selectedOrder.orderId}</h2>
-                  <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium w-fit ${getStatusColor(selectedOrder.status)}`}>
-                    {getStatusIcon(selectedOrder.status)}
-                    {selectedOrder.status}
-                  </span>
+                  <div className="flex items-center gap-3">
+                    {isWithin10Days(selectedOrder.createdAt) && (
+                      <button
+                        onClick={() => handleReturnRequest(selectedOrder.orderId)}
+                        className="px-4 py-2 bg-orange-100 text-orange-700 text-sm font-medium rounded-lg hover:bg-orange-200 transition-colors"
+                      >
+                        Return Request
+                      </button>
+                    )}
+                    <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium w-fit ${getStatusColor(selectedOrder.status)}`}>
+                      {getStatusIcon(selectedOrder.status)}
+                      {selectedOrder.status}
+                    </span>
+                  </div>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-4 text-sm text-gray-600">
                   <div>
@@ -352,8 +380,21 @@ export default function Orders() {
                         ₹{order.pricing.total.toLocaleString()}
                       </span>
                     </div>
-                    <div className="text-sm text-primary-dark font-medium hover:text-secondary-brown transition-colors">
-                      View Details →
+                    <div className="flex items-center gap-3">
+                      {isWithin10Days(order.createdAt) && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleReturnRequest(order.orderId);
+                          }}
+                          className="px-3 py-1.5 bg-orange-100 text-orange-700 text-xs font-medium rounded-md hover:bg-orange-200 transition-colors"
+                        >
+                          Return
+                        </button>
+                      )}
+                      <div className="text-sm text-primary-dark font-medium hover:text-secondary-brown transition-colors">
+                        View Details →
+                      </div>
                     </div>
                   </div>
                 </div>

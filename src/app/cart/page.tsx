@@ -78,9 +78,16 @@ export default function Cart() {
     console.log('Order data to save:', orderData);
 
     try {
-      const orderRef = doc(db, 'users', user.email, 'orders', orderId);
-      await setDoc(orderRef, orderData);
-      console.log('Order saved successfully with ID:', orderId);
+      // Save to both paths: users/{userEmail}/orders/{orderId} and orders/{orderId}
+      const userOrderRef = doc(db, 'users', user.email, 'orders', orderId);
+      const globalOrderRef = doc(db, 'orders', orderId);
+
+      await Promise.all([
+        setDoc(userOrderRef, orderData),
+        setDoc(globalOrderRef, orderData)
+      ]);
+
+      console.log('Order saved successfully to both user and global collections with ID:', orderId);
       return orderId;
     } catch (error) {
       console.error('Error creating order:', error);

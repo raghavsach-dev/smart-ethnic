@@ -323,7 +323,7 @@ export default function ProductDetail() {
                 <RotateCcw className="h-5 w-5 text-green-600 mt-0.5" />
                 <div>
                   <h4 className="font-semibold text-primary-dark">Easy Returns</h4>
-                  <p className="text-sm text-gray-600">30-day return policy</p>
+                  <p className="text-sm text-gray-600">10 day return policy</p>
                 </div>
               </div>
 

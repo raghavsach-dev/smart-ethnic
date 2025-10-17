@@ -9,6 +9,21 @@ service cloud.firestore {
       match /cart/{cartId} {
         allow read, write: if true;
       }
+
+      // Orders subcollection
+      match /orders/{orderId} {
+        allow read, write: if true;
+      }
+    }
+
+    // Global orders collection - allow read/write for all users (demo purposes)
+    match /orders/{orderId} {
+      allow read, write: if true;
+    }
+
+    // Queries collection - allow read/write for all users (for enquiries)
+    match /queries/{queryId} {
+      allow read, write: if true;
     }
 
     // Collections (products) - allow read for all users
